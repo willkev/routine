@@ -8,7 +8,11 @@ import org.jnativehook.mouse.NativeMouseEvent;
 import org.jnativehook.mouse.NativeMouseListener;
 
 public class Action implements NativeKeyListener, NativeMouseListener {
-
+    /*
+    Não pega cursor do mouse selecionando uma parte de um texto, não retorna evento nenhum,
+    pelo menos o de nativeMouseClicked não retorna!
+    */
+    
     private User user;
     private Storage storage;
     private boolean recOn = false;
