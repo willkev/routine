@@ -4,31 +4,133 @@ import java.awt.event.KeyEvent;
 import static java.awt.event.KeyEvent.VK_0;
 import static java.awt.event.KeyEvent.VK_9;
 import static java.awt.event.KeyEvent.VK_A;
+import static java.awt.event.KeyEvent.VK_BACK_SLASH;
+import static java.awt.event.KeyEvent.VK_BACK_SPACE;
+import static java.awt.event.KeyEvent.VK_BEGIN;
+import static java.awt.event.KeyEvent.VK_CANCEL;
+import static java.awt.event.KeyEvent.VK_CAPS_LOCK;
+import static java.awt.event.KeyEvent.VK_CLEAR;
+import static java.awt.event.KeyEvent.VK_CLOSE_BRACKET;
+import static java.awt.event.KeyEvent.VK_COMMA;
+import static java.awt.event.KeyEvent.VK_COMPOSE;
+import static java.awt.event.KeyEvent.VK_DELETE;
+import static java.awt.event.KeyEvent.VK_DIVIDE;
+import static java.awt.event.KeyEvent.VK_DOWN;
+import static java.awt.event.KeyEvent.VK_END;
+import static java.awt.event.KeyEvent.VK_ENTER;
+import static java.awt.event.KeyEvent.VK_EQUALS;
+import static java.awt.event.KeyEvent.VK_ESCAPE;
+import static java.awt.event.KeyEvent.VK_HOME;
+import static java.awt.event.KeyEvent.VK_LEFT;
+import static java.awt.event.KeyEvent.VK_MINUS;
+import static java.awt.event.KeyEvent.VK_MULTIPLY;
 import static java.awt.event.KeyEvent.VK_NUMPAD0;
 import static java.awt.event.KeyEvent.VK_NUMPAD9;
+import static java.awt.event.KeyEvent.VK_NUM_LOCK;
+import static java.awt.event.KeyEvent.VK_OPEN_BRACKET;
+import static java.awt.event.KeyEvent.VK_PAGE_DOWN;
+import static java.awt.event.KeyEvent.VK_PAGE_UP;
+import static java.awt.event.KeyEvent.VK_PAUSE;
+import static java.awt.event.KeyEvent.VK_PERIOD;
+import static java.awt.event.KeyEvent.VK_RIGHT;
+import static java.awt.event.KeyEvent.VK_SCROLL_LOCK;
+import static java.awt.event.KeyEvent.VK_SEMICOLON;
+import static java.awt.event.KeyEvent.VK_SLASH;
 import static java.awt.event.KeyEvent.VK_SPACE;
+import static java.awt.event.KeyEvent.VK_UP;
 import static java.awt.event.KeyEvent.VK_Z;
 
 public class Storage {
 
+    enum LastEvent {
+        Mouse, Text, Control, None
+    }
+
     private long time = 0, lastTime = 0;
+    private LastEvent lastEvent = LastEvent.None;
 
     public void addMouse(int x, int y, int button) {
-        System.out.format("[%03d,%03d] button-%d [+%d ms]\n", x, y, button, calculateRangeTime());
+        System.out.format("\n[%03d,%03d] button-%d [+%d ms]", x, y, button, calculateRangeTime());
+        lastEvent = LastEvent.Mouse;
     }
 
     public void addKey(int keyCode) {
+        if (addText(keyCode)) {
+            lastEvent = LastEvent.Text;
+            return;
+        }
+        switch (keyCode) {
+            case VK_ENTER:
+            case VK_DELETE:
+            case VK_BACK_SPACE:
+            case VK_CANCEL:
+            case VK_CLEAR:
+            case VK_COMPOSE:
+            case VK_PAUSE:
+            case VK_CAPS_LOCK:
+            case VK_ESCAPE:
+            case VK_PAGE_UP:
+            case VK_PAGE_DOWN:
+            case VK_END:
+            case VK_HOME:
+            case VK_LEFT:
+            case VK_UP:
+            case VK_RIGHT:
+            case VK_DOWN:
+            case VK_BEGIN:
+            case VK_NUM_LOCK:
+            case VK_SCROLL_LOCK:
+                System.out.println();
+                lastEvent = LastEvent.Control;
+                break;
+            default:
+                if (lastEvent != LastEvent.Text) {
+                    System.out.println();
+                }
+                lastEvent = LastEvent.Text;
+        }
+        if (keyCode == 0) {
+            System.out.print("[?]");
+        } else {
+            System.out.print("[" + KeyEvent.getKeyText(keyCode) + "]");
+        }
+    }
+
+    private boolean addText(int keyCode) {
         if (keyCode >= VK_0 && keyCode <= VK_9
                 || keyCode >= VK_A && keyCode <= VK_Z
                 || keyCode >= VK_NUMPAD0 && keyCode <= VK_NUMPAD9
-                || keyCode == VK_SPACE) {
+                || keyCode == VK_SPACE
+                || keyCode >= VK_MULTIPLY && keyCode <= VK_DIVIDE) {
             if (keyCode >= VK_NUMPAD0 && keyCode <= VK_NUMPAD9) {
                 keyCode -= 48;
             }
-            System.out.format("%c", keyCode);
-        } else {
-            System.out.format("[%s] [+%d ms]\n", KeyEvent.getKeyText(keyCode), calculateRangeTime());
+            if (keyCode >= VK_MULTIPLY && keyCode <= VK_DIVIDE) {
+                keyCode -= 64;
+            }
+            if (lastEvent != LastEvent.Text) {
+                System.out.println();
+            }
+            System.out.print((char) keyCode);
+            return true;
         }
+        switch (keyCode) {
+            case VK_COMMA:
+            case VK_PERIOD:
+            case VK_SLASH:
+            case VK_SEMICOLON:
+            case VK_EQUALS:
+            case VK_OPEN_BRACKET:
+            case VK_BACK_SLASH:
+            case VK_CLOSE_BRACKET:
+            case VK_MINUS:
+                if (lastEvent != LastEvent.Text) {
+                    System.out.println();
+                }
+                System.out.print((char) keyCode);
+                return true;
+        }
+        return false;
     }
 
     private long calculateRangeTime() {
