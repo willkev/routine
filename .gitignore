@@ -18,3 +18,4 @@ hs_err*.log
 
 /routine/nbproject/private/
 /routine/build/
+/routine/dist/
