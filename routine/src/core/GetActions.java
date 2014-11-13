@@ -7,7 +7,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
 import org.jnativehook.mouse.NativeMouseEvent;
 import org.jnativehook.mouse.NativeMouseListener;
 
-public class Action implements NativeKeyListener, NativeMouseListener {
+public class GetActions implements NativeKeyListener, NativeMouseListener {
     /*
     Não pega cursor do mouse selecionando uma parte de um texto, não retorna evento nenhum,
     pelo menos o de nativeMouseClicked não retorna!
@@ -18,7 +18,7 @@ public class Action implements NativeKeyListener, NativeMouseListener {
     private boolean recOn = false;
     private int lastKeyCode;
 
-    public Action() {
+    public GetActions() {
         try {
             GlobalScreen.registerNativeHook();
             user = new User();
@@ -41,7 +41,7 @@ public class Action implements NativeKeyListener, NativeMouseListener {
             if (recOn) {
                 System.out.println("Start rec...");
             } else {
-                System.out.println("Stop rec!");
+                System.out.println("\nStop rec!");
             }
         }
         lastKeyCode = nke.getKeyCode();
