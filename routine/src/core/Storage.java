@@ -42,6 +42,9 @@ import static java.awt.event.KeyEvent.VK_Z;
 
 public class Storage {
 
+    public boolean showLog = true;
+    public boolean writeData = false;
+
     enum LastEvent {
         Mouse, Text, Control, None
     }
@@ -50,7 +53,7 @@ public class Storage {
     private LastEvent lastEvent = LastEvent.None;
 
     public void addMouse(int x, int y, int button) {
-        System.out.format("\n[%03d,%03d] button-%d [+%d ms]", x, y, button, calculateRangeTime());
+        storeMouse(x, y, button);
         lastEvent = LastEvent.Mouse;
     }
 
@@ -80,19 +83,19 @@ public class Storage {
             case VK_BEGIN:
             case VK_NUM_LOCK:
             case VK_SCROLL_LOCK:
-                System.out.println();
+                storeTextNewLine();
                 lastEvent = LastEvent.Control;
                 break;
             default:
                 if (lastEvent != LastEvent.Text) {
-                    System.out.println();
+                    storeTextNewLine();
                 }
                 lastEvent = LastEvent.Text;
         }
         if (keyCode == 0) {
-            System.out.print("[?]");
+            storeTextUndefined();
         } else {
-            System.out.print("[" + KeyEvent.getKeyText(keyCode) + "]");
+            storeTextControl(KeyEvent.getKeyText(keyCode));
         }
     }
 
@@ -109,9 +112,9 @@ public class Storage {
                 keyCode -= 64;
             }
             if (lastEvent != LastEvent.Text) {
-                System.out.println();
+                storeTextNewLine();
             }
-            System.out.print((char) keyCode);
+            storeText((char) keyCode);
             return true;
         }
         switch (keyCode) {
@@ -125,9 +128,9 @@ public class Storage {
             case VK_CLOSE_BRACKET:
             case VK_MINUS:
                 if (lastEvent != LastEvent.Text) {
-                    System.out.println();
+                    storeTextNewLine();
                 }
-                System.out.print((char) keyCode);
+                storeText((char) keyCode);
                 return true;
         }
         return false;
@@ -140,5 +143,47 @@ public class Storage {
             return 0;
         }
         return time - lastTime;
+    }
+
+    private void storeMouse(int x, int y, int button) {
+        if (showLog) {
+            System.out.format("\n[%03d,%03d] button-%d", x, y, button);
+        }
+
+    }
+
+    private void storeText(char text) {
+        if (showLog) {
+            System.out.print(text);
+        }
+    }
+
+    private void storeTextControl(String text) {
+        if (showLog) {
+            System.out.print("[" + text + "]");
+        }
+    }
+
+    private void storeTextNewLine() {
+        if (showLog) {
+            System.out.println();
+        }
+    }
+
+    private void storeTextUndefined() {
+        if (showLog) {
+            System.out.print("[?]");
+        }
+    }
+
+    private void writeFile(String text) {
+        if (!writeData) {
+            return;
+        }
+        //calculateRangeTime() + text
+    }
+
+    private void openFile() {
+
     }
 }
