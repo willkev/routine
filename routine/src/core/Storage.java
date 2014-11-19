@@ -39,27 +39,48 @@ import static java.awt.event.KeyEvent.VK_SLASH;
 import static java.awt.event.KeyEvent.VK_SPACE;
 import static java.awt.event.KeyEvent.VK_UP;
 import static java.awt.event.KeyEvent.VK_Z;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Storage {
 
-    public boolean showLog = true;
-    public boolean writeData = false;
+    public boolean showLog;
+    public boolean writeData;
 
-    enum LastEvent {
-        Mouse, Text, Control, None
+    public enum EventType {
+        Mouse, Text, Control, None;
+
+        public String getCode() {
+            switch (this) {
+                case Mouse:
+                    return "M";
+                case Text:
+                    return "T";
+                case Control:
+                    return "C";
+            }
+            return "X";
+        }
     }
 
     private long time = 0, lastTime = 0;
-    private LastEvent lastEvent = LastEvent.None;
+    private EventType lastEvent = EventType.None;
+    private FileWriter writer;
+
+    public Storage(boolean showLog, boolean writeData) {
+        this.showLog = showLog;
+        this.writeData = writeData;
+    }
 
     public void addMouse(int x, int y, int button) {
         storeMouse(x, y, button);
-        lastEvent = LastEvent.Mouse;
+        lastEvent = EventType.Mouse;
     }
 
     public void addKey(int keyCode) {
         if (addText(keyCode)) {
-            lastEvent = LastEvent.Text;
+            lastEvent = EventType.Text;
             return;
         }
         switch (keyCode) {
@@ -84,13 +105,13 @@ public class Storage {
             case VK_NUM_LOCK:
             case VK_SCROLL_LOCK:
                 storeTextNewLine();
-                lastEvent = LastEvent.Control;
+                lastEvent = EventType.Control;
                 break;
             default:
-                if (lastEvent != LastEvent.Text) {
+                if (lastEvent != EventType.Text) {
                     storeTextNewLine();
                 }
-                lastEvent = LastEvent.Text;
+                lastEvent = EventType.Text;
         }
         if (keyCode == 0) {
             storeTextUndefined();
@@ -111,7 +132,7 @@ public class Storage {
             if (keyCode >= VK_MULTIPLY && keyCode <= VK_DIVIDE) {
                 keyCode -= 64;
             }
-            if (lastEvent != LastEvent.Text) {
+            if (lastEvent != EventType.Text) {
                 storeTextNewLine();
             }
             storeText((char) keyCode);
@@ -127,7 +148,7 @@ public class Storage {
             case VK_BACK_SLASH:
             case VK_CLOSE_BRACKET:
             case VK_MINUS:
-                if (lastEvent != LastEvent.Text) {
+                if (lastEvent != EventType.Text) {
                     storeTextNewLine();
                 }
                 storeText((char) keyCode);
@@ -149,19 +170,21 @@ public class Storage {
         if (showLog) {
             System.out.format("\n[%03d,%03d] button-%d", x, y, button);
         }
-
+        writeFile(x + "," + y + "," + button, EventType.Mouse);
     }
 
     private void storeText(char text) {
         if (showLog) {
             System.out.print(text);
         }
+        writeFile("" + text, EventType.Text);
     }
 
     private void storeTextControl(String text) {
         if (showLog) {
             System.out.print("[" + text + "]");
         }
+        writeFile(text, EventType.Control);
     }
 
     private void storeTextNewLine() {
@@ -174,16 +197,34 @@ public class Storage {
         if (showLog) {
             System.out.print("[?]");
         }
+        writeFile("[?]", EventType.None);
     }
 
-    private void writeFile(String text) {
+    private void writeFile(String text, EventType eventType) {
         if (!writeData) {
             return;
         }
-        //calculateRangeTime() + text
+        openFile();
+        if (writer == null) {
+            return;
+        }
+        try {
+            writer.write(eventType.getCode() + "," + calculateRangeTime() + "," + text + "\n");
+            writer.flush();
+        } catch (IOException ex) {
+            System.out.println("ERROR: " + ex.getMessage());
+        }
     }
 
     private void openFile() {
-
+        if (writer != null) {
+            return;
+        }
+        try {
+            writer = new FileWriter(new File(System.currentTimeMillis() + ".dat"));
+        } catch (IOException ex) {
+            System.out.println("ERROR: " + ex.getMessage());
+            writer = null;
+        }
     }
 }

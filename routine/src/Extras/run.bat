@@ -1,7 +1,9 @@
 @echo off 
-java -classpath routine.jar;JNativeHook.jar core.Tester
+java -classpath routine.jar;JNativeHook.jar core.Executor
 if %errorlevel%  neq 0 (
 	echo.
-	echo + routine.jar e JNativeHook.jar devem estar na mesma pasta que %0
+	echo Info: routine.jar e JNativeHook.jar devem estar na mesma pasta!
+        echo.
+        echo.
 	pause
 )

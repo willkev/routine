@@ -18,11 +18,11 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     private boolean recOn = false;
     private int lastKeyCode;
 
-    public GetActions() {
+    public GetActions(boolean showLog, boolean writeData) {
         try {
             GlobalScreen.registerNativeHook();
             user = new User();
-            storage = new Storage();
+            storage = new Storage(showLog, writeData);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.exit(1);
@@ -39,9 +39,9 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
         if (nke.getKeyCode() == KeyEvent.VK_F12 && lastKeyCode == KeyEvent.VK_SCROLL_LOCK) {
             recOn = !recOn;
             if (recOn) {
-                System.out.println("Start rec...");
+                System.out.println("Start...");
             } else {
-                System.out.println("\nStop rec!");
+                System.out.println("\nStop!");
             }
         }
         lastKeyCode = nke.getKeyCode();
