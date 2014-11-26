@@ -36,7 +36,7 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     @Override
     public void nativeKeyPressed(NativeKeyEvent nke) {
         // Scrool + F12
-        if (nke.getKeyCode() == KeyEvent.VK_F12 && lastKeyCode == KeyEvent.VK_SCROLL_LOCK) {
+        if (nke.getKeyCode() == KeyEvent.VK_F12 && lastKeyCode == KeyEvent.VK_INSERT) {
             recOn = !recOn;
             if (recOn) {
                 System.out.println("Start...");
