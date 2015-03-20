@@ -1,4 +1,4 @@
-package core;
+package routine.core;
 
 import java.awt.event.KeyEvent;
 import org.jnativehook.GlobalScreen;
@@ -8,41 +8,40 @@ import org.jnativehook.mouse.NativeMouseEvent;
 import org.jnativehook.mouse.NativeMouseListener;
 
 public class GetActions implements NativeKeyListener, NativeMouseListener {
-    /*
-    Não pega cursor do mouse selecionando uma parte de um texto, não retorna evento nenhum,
-    pelo menos o de nativeMouseClicked não retorna!
-    */
-    
-    private User user;
+
+    private static final int ON_OFF_1 = KeyEvent.VK_INSERT;
+    private static final int ON_OFF_2 = KeyEvent.VK_INSERT;
+
     private Storage storage;
-    private boolean recOn = false;
+    public boolean recOn = false;
     private int lastKeyCode;
 
     public GetActions(boolean showLog, boolean writeData) {
         try {
             GlobalScreen.registerNativeHook();
-            user = new User();
             storage = new Storage(showLog, writeData);
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.exit(1);
+            TaskBar.it.msgError("" + ex);
         }
         GlobalScreen.getInstance().addNativeKeyListener(this);
         GlobalScreen.getInstance().addNativeMouseListener(this);
         //GlobalScreen.getInstance().addNativeMouseWheelListener(this);
-        System.out.println("Init ok.");
+        System.out.println("Init GetActions OK!.");
     }
 
     @Override
     public void nativeKeyPressed(NativeKeyEvent nke) {
-        // Scrool + F12
-        if (nke.getKeyCode() == KeyEvent.VK_F12 && lastKeyCode == KeyEvent.VK_INSERT) {
+        if (nke.getKeyCode() == ON_OFF_1 && lastKeyCode == ON_OFF_2) {
             recOn = !recOn;
             if (recOn) {
-                System.out.println("Start...");
-            } else {
-                System.out.println("\nStop!");
+                TaskBar.it.msgInfo("Rec!");
+                // Para não levar em consideração a tecla de ON_OFF
+                lastKeyCode = nke.getKeyCode();
+                return;
             }
+            TaskBar.it.msgInfo("Stop!");
+            storage.reset();
         }
         lastKeyCode = nke.getKeyCode();
         if (recOn) {
@@ -60,6 +59,7 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
 
     @Override
     public void nativeMouseClicked(NativeMouseEvent nme) {
+        lastKeyCode = 0;
         if (recOn) {
             storage.addMouse(nme.getX(), nme.getY(), nme.getButton());
         }
@@ -73,3 +73,8 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     public void nativeMouseReleased(NativeMouseEvent nme) {
     }
 }
+
+/*
+ Não pega cursor do mouse selecionando uma parte de um texto, não retorna evento nenhum,
+ pelo menos o de nativeMouseClicked não retorna!
+ */

@@ -1,4 +1,4 @@
-package Others;
+package rna;
 
 import java.util.Random;
 

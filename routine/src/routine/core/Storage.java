@@ -1,4 +1,4 @@
-package core;
+package routine.core;
 
 import java.awt.event.KeyEvent;
 import static java.awt.event.KeyEvent.VK_0;
@@ -49,6 +49,7 @@ public class Storage {
     public boolean writeData;
 
     public enum EventType {
+
         Mouse, Text, Control, None;
 
         public String getCode() {
@@ -61,6 +62,24 @@ public class Storage {
                     return "C";
             }
             return "X";
+        }
+
+        public static EventType getEventType(String name) {
+            if (name == null) {
+                return null;
+            }
+            if (name.equals("M")) {
+                return Mouse;
+            } else {
+                if (name.equals("T")) {
+                    return Text;
+                } else {
+                    if (name.equals("C")) {
+                        return Control;
+                    }
+                }
+            }
+            return null;
         }
     }
 
@@ -84,6 +103,8 @@ public class Storage {
             return;
         }
         switch (keyCode) {
+            // Virgula é o token de separação no arquivo .dat
+            case VK_COMMA:
             case VK_ENTER:
             case VK_DELETE:
             case VK_BACK_SPACE:
@@ -116,7 +137,7 @@ public class Storage {
         if (keyCode == 0) {
             storeTextUndefined();
         } else {
-            storeTextControl(KeyEvent.getKeyText(keyCode));
+            storeTextControl(keyCode);
         }
     }
 
@@ -135,11 +156,10 @@ public class Storage {
             if (lastEvent != EventType.Text) {
                 storeTextNewLine();
             }
-            storeText((char) keyCode);
+            storeText(keyCode);
             return true;
         }
         switch (keyCode) {
-            case VK_COMMA:
             case VK_PERIOD:
             case VK_SLASH:
             case VK_SEMICOLON:
@@ -151,7 +171,7 @@ public class Storage {
                 if (lastEvent != EventType.Text) {
                     storeTextNewLine();
                 }
-                storeText((char) keyCode);
+                storeText(keyCode);
                 return true;
         }
         return false;
@@ -170,21 +190,22 @@ public class Storage {
         if (showLog) {
             System.out.format("\n[%03d,%03d] button-%d", x, y, button);
         }
-        writeFile(x + "," + y + "," + button, EventType.Mouse);
+        writeFile(EventType.Mouse, x + "," + y + "," + button);
     }
 
-    private void storeText(char text) {
+    private void storeText(int keyCode) {
         if (showLog) {
-            System.out.print(text);
+            System.out.print((char) keyCode);
         }
-        writeFile("" + text, EventType.Text);
+        writeFile(EventType.Text, KeyEvent.getKeyText(keyCode) + "," + keyCode);
     }
 
-    private void storeTextControl(String text) {
+    private void storeTextControl(int keyCode) {
+        String text = KeyEvent.getKeyText(keyCode);
         if (showLog) {
             System.out.print("[" + text + "]");
         }
-        writeFile(text, EventType.Control);
+        writeFile(EventType.Control, text + "," + keyCode);
     }
 
     private void storeTextNewLine() {
@@ -197,10 +218,10 @@ public class Storage {
         if (showLog) {
             System.out.print("[?]");
         }
-        writeFile("[?]", EventType.None);
+        writeFile(EventType.None, "[?]");
     }
 
-    private void writeFile(String text, EventType eventType) {
+    private void writeFile(EventType eventType, String text) {
         if (!writeData) {
             return;
         }
@@ -212,7 +233,7 @@ public class Storage {
             writer.write(eventType.getCode() + "," + calculateRangeTime() + "," + text + "\n");
             writer.flush();
         } catch (IOException ex) {
-            System.out.println("ERROR: " + ex.getMessage());
+            System.out.println("ERROR writeFile:" + ex.getMessage());
         }
     }
 
@@ -221,10 +242,27 @@ public class Storage {
             return;
         }
         try {
-            writer = new FileWriter(new File(System.currentTimeMillis() + ".dat"));
+            File dir = new File(System.getProperty("user.home", ""), "routine");
+            dir.mkdir();
+            writer = new FileWriter(new File(dir, System.currentTimeMillis() + ".dat"));
         } catch (IOException ex) {
-            System.out.println("ERROR: " + ex.getMessage());
-            writer = null;
+            System.out.println("ERROR openFile:" + ex.getMessage());
+            try {
+                writer.close();
+            } catch (IOException ex2) {
+            }
         }
+    }
+
+    public void reset() {
+        try {
+            if (writer != null) {
+                writer.close();
+            }
+        } catch (IOException ex) {
+            System.out.println("ERROR reset:" + ex.getMessage());
+        }
+        writer = null;
+        time = 0;
     }
 }
