@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import org.jnativehook.keyboard.NativeKeyEvent;
 import routine.core.Storage.EventType;
 
 public class User {
@@ -45,6 +44,7 @@ public class User {
             @Override
             public void run() {
                 for (String line : lines) {
+                    System.out.println("[#]" + line);
                     if (!parserLine(line)) {
                         continue;
                     }
@@ -53,22 +53,26 @@ public class User {
                         System.out.println("Abortado!");
                         return;
                     }
-                    switch (evenType) {
-                        case Mouse:
-                            robot.mouseMove(mouseX, mouseY);
-                            if (mouseButton == 1) {
-                                mouseClickLeft();
-                            } else if (mouseButton == 2) {
-                                mouseClickRight();
-                            }
-                            break;
-                        case Text:
-                            textInput(keyCode);
-                            break;
-                        case Control:
-                            break;
+                    try {
+                        switch (evenType) {
+                            case Mouse:
+                                robot.mouseMove(mouseX, mouseY);
+                                if (mouseButton == 1) {
+                                    mouseClickLeft();
+                                } else if (mouseButton == 2) {
+                                    mouseClickRight();
+                                }
+                                break;
+                            case Text:
+                                textInput(keyCode);
+                                break;
+                            case Control:
+                                textInput(keyCode);
+                                break;
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("ERROR do action!" + ex.getMessage());
                     }
-                    System.out.println("[#]" + line);
                 }
             }
         }.start();
@@ -116,14 +120,14 @@ public class User {
     }
 
     private void mouseClickLeft() {
-        robot.delay(5);
+        robot.delay(10);
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         robot.delay(10);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 
     private void mouseClickRight() {
-        robot.delay(5);
+        robot.delay(10);
         robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
         robot.delay(10);
         robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
@@ -131,7 +135,8 @@ public class User {
 
 }
 
+
 /*
- Ocorerrá erro quando o caracter for VIRGULA
- motivo: o split é feito por virgula
- */
+
+
+*/

@@ -65,21 +65,16 @@ public class Storage {
         }
 
         public static EventType getEventType(String name) {
-            if (name == null) {
-                return null;
-            }
             if (name.equals("M")) {
                 return Mouse;
-            } else {
-                if (name.equals("T")) {
-                    return Text;
-                } else {
-                    if (name.equals("C")) {
-                        return Control;
-                    }
-                }
             }
-            return null;
+            if (name.equals("T")) {
+                return Text;
+            }
+            if (name.equals("C")) {
+                return Control;
+            }
+            return None;
         }
     }
 
