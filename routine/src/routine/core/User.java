@@ -44,38 +44,55 @@ public class User {
             @Override
             public void run() {
                 for (String line : lines) {
-                    System.out.println("[#]" + line);
-                    if (!parserLine(line)) {
-                        continue;
-                    }
-                    sleepMs(time);
+                    interpretLine(line);
                     if (ABORT) {
                         System.out.println("Abortado!");
                         return;
                     }
-                    try {
-                        switch (evenType) {
-                            case Mouse:
-                                robot.mouseMove(mouseX, mouseY);
-                                if (mouseButton == 1) {
-                                    mouseClickLeft();
-                                } else if (mouseButton == 2) {
-                                    mouseClickRight();
-                                }
-                                break;
-                            case Text:
-                                textInput(keyCode);
-                                break;
-                            case Control:
-                                textInput(keyCode);
-                                break;
-                        }
-                    } catch (Exception ex) {
-                        System.out.println("ERROR do action!" + ex.getMessage());
-                    }
                 }
             }
         }.start();
+    }
+
+    public void interpret(final Communicator communicator) throws IOException {
+        new Thread() {
+            @Override
+            public void run() {
+                String line;
+                while (true) {
+                    line = communicator.receive();
+                    interpretLine(line);
+                }
+            }
+        }.start();
+    }
+
+    private void interpretLine(String line) {
+        System.out.println("[#]" + line);
+        if (!parserLine(line)) {
+            return;
+        }
+        sleepMs(time);
+        try {
+            switch (evenType) {
+                case Mouse:
+                    robot.mouseMove(mouseX, mouseY);
+                    if (mouseButton == 1) {
+                        mouseClickLeft();
+                    } else if (mouseButton == 2) {
+                        mouseClickRight();
+                    }
+                    break;
+                case Text:
+                    textInput(keyCode);
+                    break;
+                case Control:
+                    textInput(keyCode);
+                    break;
+            }
+        } catch (Exception ex) {
+            System.out.println("ERROR do action!" + ex.getMessage());
+        }
     }
 
     private boolean parserLine(String line) {
@@ -106,6 +123,9 @@ public class User {
     }
 
     private void sleepMs(long ms) {
+        if (ms == 0) {
+            return;
+        }
         try {
             Thread.sleep(ms);
         } catch (InterruptedException ex) {
@@ -139,4 +159,4 @@ public class User {
 /*
 
 
-*/
+ */

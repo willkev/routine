@@ -1,5 +1,6 @@
 package routine.core;
 
+import gui.TaskBar;
 import java.awt.event.KeyEvent;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -12,8 +13,10 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     private static final int ON_OFF_1 = KeyEvent.VK_INSERT;
     private static final int ON_OFF_2 = KeyEvent.VK_INSERT;
 
+    // REC ON/OFF
+    public static boolean REC_ON = false;
+
     private Storage storage;
-    public boolean recOn = false;
     private int lastKeyCode;
 
     public GetActions(boolean showLog, boolean writeData) {
@@ -22,7 +25,7 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
             storage = new Storage(showLog, writeData);
         } catch (Exception ex) {
             ex.printStackTrace();
-            TaskBar.it.msgError("" + ex);
+            TaskBar.getInstance().msgError(ex);
         }
         GlobalScreen.getInstance().addNativeKeyListener(this);
         GlobalScreen.getInstance().addNativeMouseListener(this);
@@ -33,18 +36,18 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     @Override
     public void nativeKeyPressed(NativeKeyEvent nke) {
         if (nke.getKeyCode() == ON_OFF_1 && lastKeyCode == ON_OFF_2) {
-            recOn = !recOn;
-            if (recOn) {
-                TaskBar.it.msgInfo("Rec!");
+            REC_ON = !REC_ON;
+            if (REC_ON) {
+                TaskBar.getInstance().msgInfo("Rec!");
                 // Para não levar em consideração a tecla de ON_OFF
                 lastKeyCode = nke.getKeyCode();
                 return;
             }
-            TaskBar.it.msgInfo("Stop!");
+            TaskBar.getInstance().msgInfo("Stop!");
             storage.reset();
         }
         lastKeyCode = nke.getKeyCode();
-        if (recOn) {
+        if (REC_ON) {
             storage.addKey(lastKeyCode);
         }
     }
@@ -60,7 +63,7 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     @Override
     public void nativeMouseClicked(NativeMouseEvent nme) {
         lastKeyCode = 0;
-        if (recOn) {
+        if (REC_ON) {
             storage.addMouse(nme.getX(), nme.getY(), nme.getButton());
         }
     }

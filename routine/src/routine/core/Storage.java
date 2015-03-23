@@ -45,6 +45,8 @@ import java.io.IOException;
 
 public class Storage {
 
+    public static Communicator communicator;
+
     public boolean showLog;
     public boolean writeData;
 
@@ -216,7 +218,12 @@ public class Storage {
         writeFile(EventType.None, "[?]");
     }
 
+    
+    // type,time,text,keycode
     private void writeFile(EventType eventType, String text) {
+        if (communicator != null) {
+            communicator.send(eventType.getCode() + ",0," + text);
+        }
         if (!writeData) {
             return;
         }
