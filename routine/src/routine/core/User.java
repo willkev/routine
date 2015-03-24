@@ -1,8 +1,11 @@
 package routine.core;
 
+import gui.Screen;
 import java.awt.AWTException;
+import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,7 +17,8 @@ public class User {
 
     public static boolean ABORT = false;
 
-    private Robot robot;
+    private final Robot robot;
+    private final Rectangle rectangle;
     private BufferedReader reader;
     private ArrayList<String> lines;
 
@@ -29,7 +33,16 @@ public class User {
     private String text;
 
     public User() throws AWTException {
+        this(null);
+    }
+
+    public User(Rectangle rectangle) throws AWTException {
         robot = new Robot();
+        if (rectangle == null) {
+            this.rectangle = Screen.getScreenBounds(0);
+        } else {
+            this.rectangle = rectangle;
+        }
     }
 
     public void interpret(File file) throws IOException {
@@ -44,7 +57,7 @@ public class User {
             @Override
             public void run() {
                 for (String line : lines) {
-                    interpretLine(line);
+                    interpretLine(line, true);
                     if (ABORT) {
                         System.out.println("Abortado!");
                         return;
@@ -60,19 +73,30 @@ public class User {
             public void run() {
                 String line;
                 while (true) {
-                    line = communicator.receive();
-                    interpretLine(line);
+                    line = (String) communicator.receive();
+                    interpretLine(line, false);
+                    // Retorna a tela
+                    communicator.send(getScreen());
                 }
             }
         }.start();
     }
 
-    private void interpretLine(String line) {
+    private static final boolean JUMP_USER = false;
+
+    private void interpretLine(String line, boolean useTime) {
         System.out.println("[#]" + line);
         if (!parserLine(line)) {
             return;
         }
-        sleepMs(time);
+
+        if (JUMP_USER) {
+            return;
+        }
+
+        if (useTime) {
+            sleepMs(time);
+        }
         try {
             switch (evenType) {
                 case Mouse:
@@ -108,7 +132,7 @@ public class User {
                     break;
                 case Text:
                 case Control:
-                    text = spliter[2];
+                    //text = spliter[2];
                     keyCode = Integer.parseInt(spliter[3]);
                     break;
                 default:
@@ -153,10 +177,12 @@ public class User {
         robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
     }
 
+    public ScreenCapture getScreen() {
+        BufferedImage bufferImg = robot.createScreenCapture(rectangle);
+        return new ScreenCapture(bufferImg);
+    }
+
+    public Rectangle getRectangle() {
+        return rectangle;
+    }
 }
-
-
-/*
-
-
- */

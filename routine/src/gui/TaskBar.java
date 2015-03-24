@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.jnativehook.GlobalScreen;
 import routine.core.Communicator;
-import static routine.core.Communicator.DEFAULT_PORT;
+import static routine.core.Communicator.PORT;
 import routine.core.GetActions;
 import routine.core.Storage;
 import routine.core.User;
@@ -29,6 +29,7 @@ public class TaskBar extends TrayIcon {
     private MenuItem runItem = new MenuItem("Run");
     private MenuItem sendItem = new MenuItem("Send");
     private MenuItem receiveItem = new MenuItem("Receive");
+    private MenuItem screenItem = new MenuItem("Screen");
     private MenuItem exitItem = new MenuItem("Exit");
 
     private User user;
@@ -65,8 +66,11 @@ public class TaskBar extends TrayIcon {
         //Add components to popup menu
         PopupMenu popup = new PopupMenu();
         popup.add(runItem);
+        popup.addSeparator();
         popup.add(sendItem);
         popup.add(receiveItem);
+        popup.addSeparator();
+        popup.add(screenItem);
         popup.addSeparator();
         popup.add(exitItem);
         this.setPopupMenu(popup);
@@ -97,6 +101,11 @@ public class TaskBar extends TrayIcon {
                 receive();
             }
         });
+        screenItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                screen();
+            }
+        });
         exitItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 SystemTray.getSystemTray().remove(TaskBar.this);
@@ -107,26 +116,28 @@ public class TaskBar extends TrayIcon {
         });
     }
 
-    private void send() {
-        JTextField serverPort = new JTextField("server:" + DEFAULT_PORT, 10);
+    private boolean send() {
+        JTextField serverPort = new JTextField("server:" + PORT, 10);
         JOptionPane.showMessageDialog(null, serverPort, "server:port", JOptionPane.QUESTION_MESSAGE);
         try {
             Storage.communicator = new Communicator(serverPort.getText());
             GetActions.REC_ON = !GetActions.REC_ON;
         } catch (Exception ex) {
-            TaskBar.getInstance().msgError(ex);
+            msgError(ex);
             ex.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     private void receive() {
-        JTextField port = new JTextField(DEFAULT_PORT, 10);
+        JTextField port = new JTextField(PORT, 10);
         JOptionPane.showMessageDialog(null, port, "port", JOptionPane.QUESTION_MESSAGE);
         try {
             Communicator communicator = new Communicator(Integer.parseInt(port.getText().trim()));
             user.interpret(communicator);
         } catch (Exception ex) {
-            TaskBar.getInstance().msgError(ex);
+            msgError(ex);
             ex.printStackTrace();
         }
     }
@@ -146,6 +157,25 @@ public class TaskBar extends TrayIcon {
             user.interpret(file);
         } catch (Exception ex) {
             msgError(ex);
+        }
+    }
+
+    private void screen() {
+//        new Thread() {
+//            @Override
+//            public void run() {
+//                Screen screen = new Screen();
+//                while (true) {
+//                    screen.refreshScreen(user.getScreen());
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException ex) {
+//                    }
+//                }
+//            }
+//        }.start();
+        if (send()) {
+            Storage.screen = new Screen();
         }
     }
 

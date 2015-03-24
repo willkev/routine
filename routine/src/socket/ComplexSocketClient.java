@@ -6,13 +6,13 @@ import java.net.Socket;
 
 public class ComplexSocketClient {
 
-    public static final int SERVER_PORT = 1777;
+    public static final int PORT = 1777;
     
     public static void main(String args[]) throws Exception {
         Socket socket1;
         String str = "";
 
-        socket1 = new Socket("192.168.1.115", SERVER_PORT);
+        socket1 = new Socket("localhost", PORT);
         ObjectInputStream ois = new ObjectInputStream(socket1.getInputStream());
         ObjectOutputStream oos = new ObjectOutputStream(socket1.getOutputStream());
 

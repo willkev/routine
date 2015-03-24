@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class ComplexSocketServer extends WinSocket {
 
-    public static final int SERVER_PORT = 1777;
+    public static final int PORT = 1777;
 
     public static void main(String args[]) throws Exception {
         new ComplexSocketServer();
@@ -19,7 +19,7 @@ public class ComplexSocketServer extends WinSocket {
 
     public ComplexSocketServer() throws IOException {
         super("Server!");
-        servSocket = new ServerSocket(SERVER_PORT);
+        servSocket = new ServerSocket(PORT);
         while (true) {
             try {
                 connecting();
@@ -31,19 +31,22 @@ public class ComplexSocketServer extends WinSocket {
     }
 
     private void connecting() throws Exception {
-        output.append("\n" + "Waiting for a connection on " + SERVER_PORT);
+        output.append("\n" + "Waiting for a connection on " + PORT);
         fromClientSocket = servSocket.accept();
+        output.append("\n ---Accepted!");
 
         ObjectOutputStream oos = new ObjectOutputStream(fromClientSocket.getOutputStream());
+        output.append("\n ---get OUT Stream!");
+
         ObjectInputStream ois = new ObjectInputStream(fromClientSocket.getInputStream());
+        output.append("\n ---get IN Stream!");
 
         //ComplexCompany comp;
         Object comp;
-        String print;
         while ((comp = ois.readObject()) != null) {
-            print = comp.toString();
-            output.append(print + "\n");
+            output.append(comp.toString() + "\n");
             oos.writeObject("bye bye");
+            output.append("\n ---writeObject feedback!");
             break;
         }
         oos.close();

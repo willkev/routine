@@ -9,30 +9,33 @@ import java.net.Socket;
 
 public class Communicator {
 
-    public static final String DEFAULT_PORT = "9876";
-    
-    private Socket socketOut, socketIn;
-    private ObjectOutputStream out;
-    ObjectInputStream in;
+    public static final String PORT = "9876";
 
+    private Socket socket;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+
+    // Client
     public Communicator(String serverPort) throws IOException {
         String server = serverPort.split(":")[0];
         int port = Integer.parseInt(serverPort.split(":")[1].trim());
-        socketOut = new Socket(server, port);
-        out = new ObjectOutputStream(socketOut.getOutputStream());
+        socket = new Socket(server, port);
+        in = new ObjectInputStream(socket.getInputStream());
+        out = new ObjectOutputStream(socket.getOutputStream());
     }
 
+    // Server
     public Communicator(int port) throws IOException {
         ServerSocket servSocket = new ServerSocket(port);
-        servSocket.setSoTimeout(10000);
-        socketIn = servSocket.accept();
-        in = new ObjectInputStream(socketIn.getInputStream());
+        servSocket.setSoTimeout(60000);
+        socket = servSocket.accept();
+        out = new ObjectOutputStream(socket.getOutputStream());        
+        in = new ObjectInputStream(socket.getInputStream());
     }
 
-    public String receive() {
+    public Object receive() {
         try {
-            Object obj = in.readObject();
-            return obj.toString();
+            return in.readObject();
         } catch (Exception ex) {
             TaskBar.getInstance().msgError(ex);
             ex.printStackTrace();
@@ -40,9 +43,9 @@ public class Communicator {
         return "receive:exception!";
     }
 
-    public void send(String action) {
+    public void send(Object obj) {
         try {
-            out.writeObject(action);
+            out.writeObject(obj);
         } catch (IOException ex) {
             TaskBar.getInstance().msgError(ex);
             ex.printStackTrace();
@@ -51,17 +54,14 @@ public class Communicator {
 
     public void close() {
         try {
-            if (socketOut != null) {
-                socketOut.close();
+            if (in != null) {
+                in.close();
             }
             if (out != null) {
                 out.close();
             }
-            if (socketIn != null) {
-                socketIn.close();
-            }
-            if (in != null) {
-                in.close();
+            if (socket != null) {
+                socket.close();
             }
         } catch (Exception ex) {
             TaskBar.getInstance().msgError(ex);

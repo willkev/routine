@@ -1,5 +1,6 @@
 package routine.core;
 
+import gui.Screen;
 import java.awt.event.KeyEvent;
 import static java.awt.event.KeyEvent.VK_0;
 import static java.awt.event.KeyEvent.VK_9;
@@ -13,6 +14,7 @@ import static java.awt.event.KeyEvent.VK_CLEAR;
 import static java.awt.event.KeyEvent.VK_CLOSE_BRACKET;
 import static java.awt.event.KeyEvent.VK_COMMA;
 import static java.awt.event.KeyEvent.VK_COMPOSE;
+import static java.awt.event.KeyEvent.VK_CONTEXT_MENU;
 import static java.awt.event.KeyEvent.VK_DELETE;
 import static java.awt.event.KeyEvent.VK_DIVIDE;
 import static java.awt.event.KeyEvent.VK_DOWN;
@@ -39,6 +41,7 @@ import static java.awt.event.KeyEvent.VK_SLASH;
 import static java.awt.event.KeyEvent.VK_SPACE;
 import static java.awt.event.KeyEvent.VK_UP;
 import static java.awt.event.KeyEvent.VK_Z;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -46,6 +49,7 @@ import java.io.IOException;
 public class Storage {
 
     public static Communicator communicator;
+    public static Screen screen;
 
     public boolean showLog;
     public boolean writeData;
@@ -135,6 +139,10 @@ public class Storage {
             storeTextUndefined();
         } else {
             storeTextControl(keyCode);
+            // "Scroll Lock" gera um evento de "Menu de Contexto"
+            if (keyCode == VK_SCROLL_LOCK) {
+                storeTextControl(VK_CONTEXT_MENU);
+            }
         }
     }
 
@@ -218,11 +226,14 @@ public class Storage {
         writeFile(EventType.None, "[?]");
     }
 
-    
     // type,time,text,keycode
     private void writeFile(EventType eventType, String text) {
         if (communicator != null) {
             communicator.send(eventType.getCode() + ",0," + text);
+            if (screen != null) {
+                ScreenCapture img = (ScreenCapture) communicator.receive();
+                screen.refreshScreen(img);
+            }
         }
         if (!writeData) {
             return;
