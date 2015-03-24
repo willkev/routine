@@ -89,11 +89,9 @@ public class User {
         if (!parserLine(line)) {
             return;
         }
-
         if (JUMP_USER) {
             return;
         }
-
         if (useTime) {
             sleepMs(time);
         }

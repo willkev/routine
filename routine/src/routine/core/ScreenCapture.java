@@ -17,7 +17,8 @@ public class ScreenCapture implements Serializable {
     }
 
     public BufferedImage getImage() {
-        BufferedImage bi = new BufferedImage(_width, _height, BufferedImage.TYPE_BYTE_GRAY);
+        // TYPE_BYTE_GRAY
+        BufferedImage bi = new BufferedImage(_width, _height, BufferedImage.TYPE_INT_RGB);
         bi.setRGB(0, 0, _width, _height, _bytesOut, 0, _width);
         return bi;
     }

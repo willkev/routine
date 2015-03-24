@@ -14,7 +14,7 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     private static final int ON_OFF_2 = KeyEvent.VK_INSERT;
 
     // REC ON/OFF
-    public static boolean REC_ON = false;
+    private static boolean REC_ON = false;
 
     private Storage storage;
     private int lastKeyCode;
@@ -31,6 +31,13 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
         GlobalScreen.getInstance().addNativeMouseListener(this);
         //GlobalScreen.getInstance().addNativeMouseWheelListener(this);
         System.out.println("Init GetActions OK!.");
+    }
+
+    public static void setRecOn(boolean on) {
+        if (on && !REC_ON) {
+            TaskBar.getInstance().msgInfo("Rec!");
+        }
+        REC_ON = on;
     }
 
     @Override

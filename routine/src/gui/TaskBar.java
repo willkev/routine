@@ -93,7 +93,9 @@ public class TaskBar extends TrayIcon {
         });
         sendItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                send();
+                if (send()) {
+                    GetActions.setRecOn(true);
+                }
             }
         });
         receiveItem.addActionListener(new ActionListener() {
@@ -121,7 +123,6 @@ public class TaskBar extends TrayIcon {
         JOptionPane.showMessageDialog(null, serverPort, "server:port", JOptionPane.QUESTION_MESSAGE);
         try {
             Storage.communicator = new Communicator(serverPort.getText());
-            GetActions.REC_ON = !GetActions.REC_ON;
         } catch (Exception ex) {
             msgError(ex);
             ex.printStackTrace();
@@ -161,21 +162,9 @@ public class TaskBar extends TrayIcon {
     }
 
     private void screen() {
-//        new Thread() {
-//            @Override
-//            public void run() {
-//                Screen screen = new Screen();
-//                while (true) {
-//                    screen.refreshScreen(user.getScreen());
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch (InterruptedException ex) {
-//                    }
-//                }
-//            }
-//        }.start();
         if (send()) {
             Storage.screen = new Screen();
+            GetActions.setRecOn(true);
         }
     }
 
