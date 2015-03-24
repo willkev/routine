@@ -8,6 +8,7 @@ import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.Inet4Address;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -15,6 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.jnativehook.GlobalScreen;
 import routine.core.Communicator;
+import static routine.core.Communicator.DEFAULT_PORT;
 import routine.core.GetActions;
 import routine.core.Storage;
 import routine.core.User;
@@ -56,6 +58,10 @@ public class TaskBar extends TrayIcon {
     private TaskBar() {
         super(new ImageIcon("").getImage());
         this.setImageAutoSize(true);
+        try {
+            this.setToolTip(Inet4Address.getLocalHost().getHostAddress());
+        } catch (Exception ex) {
+        }
         //Add components to popup menu
         PopupMenu popup = new PopupMenu();
         popup.add(runItem);
@@ -102,7 +108,7 @@ public class TaskBar extends TrayIcon {
     }
 
     private void send() {
-        JTextField serverPort = new JTextField(10);
+        JTextField serverPort = new JTextField("server:" + DEFAULT_PORT, 10);
         JOptionPane.showMessageDialog(null, serverPort, "server:port", JOptionPane.QUESTION_MESSAGE);
         try {
             Storage.communicator = new Communicator(serverPort.getText());
@@ -114,7 +120,7 @@ public class TaskBar extends TrayIcon {
     }
 
     private void receive() {
-        JTextField port = new JTextField(10);
+        JTextField port = new JTextField(DEFAULT_PORT, 10);
         JOptionPane.showMessageDialog(null, port, "port", JOptionPane.QUESTION_MESSAGE);
         try {
             Communicator communicator = new Communicator(Integer.parseInt(port.getText().trim()));

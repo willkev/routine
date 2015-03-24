@@ -9,6 +9,8 @@ import java.net.Socket;
 
 public class Communicator {
 
+    public static final String DEFAULT_PORT = "9876";
+    
     private Socket socketOut, socketIn;
     private ObjectOutputStream out;
     ObjectInputStream in;
@@ -22,6 +24,7 @@ public class Communicator {
 
     public Communicator(int port) throws IOException {
         ServerSocket servSocket = new ServerSocket(port);
+        servSocket.setSoTimeout(10000);
         socketIn = servSocket.accept();
         in = new ObjectInputStream(socketIn.getInputStream());
     }
