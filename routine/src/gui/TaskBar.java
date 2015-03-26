@@ -8,6 +8,7 @@ import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.PrintWriter;
 import java.net.Inet4Address;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -26,20 +27,14 @@ public class TaskBar extends TrayIcon {
     private static final String NAME = "Routine";
     private static TaskBar INSTANCE;
 
-    private MenuItem runItem = new MenuItem("Run");
+    private MenuItem imitateItem = new MenuItem("Imitate");
+    private MenuItem screenItem = new MenuItem("Screen");
     private MenuItem sendItem = new MenuItem("Send");
     private MenuItem receiveItem = new MenuItem("Receive");
-    private MenuItem screenItem = new MenuItem("Screen");
     private MenuItem exitItem = new MenuItem("Exit");
 
     private User user;
-
-    public static TaskBar getInstance() {
-        if (INSTANCE == null) {
-            createTaskBar();
-        }
-        return INSTANCE;
-    }
+    private GetActions getActions;
 
     public static void createTaskBar() {
         if (!SystemTray.isSupported()) {
@@ -56,6 +51,13 @@ public class TaskBar extends TrayIcon {
         });
     }
 
+    public static TaskBar getInstance() {
+        if (INSTANCE == null) {
+            createTaskBar();
+        }
+        return INSTANCE;
+    }
+
     private TaskBar() {
         super(new ImageIcon("").getImage());
         this.setImageAutoSize(true);
@@ -65,12 +67,11 @@ public class TaskBar extends TrayIcon {
         }
         //Add components to popup menu
         PopupMenu popup = new PopupMenu();
-        popup.add(runItem);
-        popup.addSeparator();
-        popup.add(sendItem);
-        popup.add(receiveItem);
+        popup.add(imitateItem);
         popup.addSeparator();
         popup.add(screenItem);
+        popup.add(sendItem);
+        popup.add(receiveItem);
         popup.addSeparator();
         popup.add(exitItem);
         this.setPopupMenu(popup);
@@ -82,19 +83,23 @@ public class TaskBar extends TrayIcon {
         }
         try {
             user = new User();
+            getActions = new GetActions(true, true);
             msgInfo("Start!");
         } catch (AWTException ex) {
             msgError("User error! " + ex.getMessage());
         }
-        runItem.addActionListener(new ActionListener() {
+        imitateItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                run();
+                imitate();
             }
         });
         sendItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (send()) {
-                    GetActions.setRecOn(true);
+                    if (!getActions.isRecOn()) {
+                        msgInfo("Rec!");
+                    }
+                    getActions.setRecOn(true);
                 }
             }
         });
@@ -143,7 +148,7 @@ public class TaskBar extends TrayIcon {
         }
     }
 
-    private void run() {
+    private void imitate() {
         JFileChooser fc = new JFileChooser(new File(System.getProperty("user.home"), "routine"));
         int returnVal = fc.showOpenDialog(null);
         if (returnVal != JFileChooser.APPROVE_OPTION) {
@@ -164,7 +169,10 @@ public class TaskBar extends TrayIcon {
     private void screen() {
         if (send()) {
             Storage.screen = new Screen();
-            GetActions.setRecOn(true);
+            if (!getActions.isRecOn()) {
+                msgInfo("Rec!");
+            }
+            getActions.setRecOn(true);
         }
     }
 

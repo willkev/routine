@@ -13,9 +13,7 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     private static final int ON_OFF_1 = KeyEvent.VK_INSERT;
     private static final int ON_OFF_2 = KeyEvent.VK_INSERT;
 
-    // REC ON/OFF
-    private static boolean REC_ON = false;
-
+    private boolean recOn = false;
     private Storage storage;
     private int lastKeyCode;
 
@@ -33,18 +31,11 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
         System.out.println("Init GetActions OK!.");
     }
 
-    public static void setRecOn(boolean on) {
-        if (on && !REC_ON) {
-            TaskBar.getInstance().msgInfo("Rec!");
-        }
-        REC_ON = on;
-    }
-
     @Override
     public void nativeKeyPressed(NativeKeyEvent nke) {
         if (nke.getKeyCode() == ON_OFF_1 && lastKeyCode == ON_OFF_2) {
-            REC_ON = !REC_ON;
-            if (REC_ON) {
+            recOn = !recOn;
+            if (recOn) {
                 TaskBar.getInstance().msgInfo("Rec!");
                 // Para não levar em consideração a tecla de ON_OFF
                 lastKeyCode = nke.getKeyCode();
@@ -54,7 +45,7 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
             storage.reset();
         }
         lastKeyCode = nke.getKeyCode();
-        if (REC_ON) {
+        if (recOn) {
             storage.addKey(lastKeyCode);
         }
     }
@@ -70,7 +61,7 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     @Override
     public void nativeMouseClicked(NativeMouseEvent nme) {
         lastKeyCode = 0;
-        if (REC_ON) {
+        if (recOn) {
             storage.addMouse(nme.getX(), nme.getY(), nme.getButton());
         }
     }
@@ -82,6 +73,15 @@ public class GetActions implements NativeKeyListener, NativeMouseListener {
     @Override
     public void nativeMouseReleased(NativeMouseEvent nme) {
     }
+
+    public boolean isRecOn() {
+        return recOn;
+    }
+
+    public void setRecOn(boolean recOn) {
+        this.recOn = recOn;
+    }
+    
 }
 
 /*

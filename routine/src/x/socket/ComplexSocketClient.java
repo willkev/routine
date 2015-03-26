@@ -1,13 +1,12 @@
-package socket;
+package x.socket;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import static x.socket.ComplexSocketServer.PORT;
 
 public class ComplexSocketClient {
 
-    public static final int PORT = 1777;
-    
     public static void main(String args[]) throws Exception {
         Socket socket1;
         String str = "";

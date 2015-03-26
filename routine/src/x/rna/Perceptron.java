@@ -1,4 +1,4 @@
-package rna;
+package x.rna;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
