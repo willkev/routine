@@ -67,7 +67,7 @@ public class User {
         }.start();
     }
 
-    public void interpret(final Communicator communicator) throws IOException {
+    public void startInterpret(final Communicator communicator) throws IOException {
         new Thread() {
             @Override
             public void run() {

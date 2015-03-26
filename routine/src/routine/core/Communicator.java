@@ -27,7 +27,7 @@ public class Communicator {
     // Server
     public Communicator(int port) throws IOException {
         ServerSocket servSocket = new ServerSocket(port);
-        servSocket.setSoTimeout(60000);
+        servSocket.setSoTimeout(30000);
         socket = servSocket.accept();
         out = new ObjectOutputStream(socket.getOutputStream());        
         in = new ObjectInputStream(socket.getInputStream());

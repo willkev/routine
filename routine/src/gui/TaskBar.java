@@ -8,7 +8,6 @@ import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.PrintWriter;
 import java.net.Inet4Address;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -95,7 +94,7 @@ public class TaskBar extends TrayIcon {
         });
         sendItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (send()) {
+                if (openConection()) {
                     if (!getActions.isRecOn()) {
                         msgInfo("Rec!");
                     }
@@ -123,13 +122,23 @@ public class TaskBar extends TrayIcon {
         });
     }
 
-    private boolean send() {
-        JTextField serverPort = new JTextField("server:" + PORT, 10);
+    private void screen() {
+        if (openConection()) {
+            Storage.screen = new Screen();
+        }
+    }
+
+    private boolean openConection() {
+        if (Storage.communicator != null) {
+            return true;
+        }
+        JTextField serverPort = new JTextField("localhost:" + PORT, 10);
         JOptionPane.showMessageDialog(null, serverPort, "server:port", JOptionPane.QUESTION_MESSAGE);
         try {
             Storage.communicator = new Communicator(serverPort.getText());
         } catch (Exception ex) {
             msgError(ex);
+            Storage.communicator = null;
             ex.printStackTrace();
             return false;
         }
@@ -139,12 +148,15 @@ public class TaskBar extends TrayIcon {
     private void receive() {
         JTextField port = new JTextField(PORT, 10);
         JOptionPane.showMessageDialog(null, port, "port", JOptionPane.QUESTION_MESSAGE);
+        Communicator comm = null;
         try {
-            Communicator communicator = new Communicator(Integer.parseInt(port.getText().trim()));
-            user.interpret(communicator);
+            comm = new Communicator(Integer.parseInt(port.getText().trim()));
+            user.startInterpret(comm);
         } catch (Exception ex) {
+            if (comm != null) {
+                comm.close();
+            }
             msgError(ex);
-            ex.printStackTrace();
         }
     }
 
@@ -163,16 +175,6 @@ public class TaskBar extends TrayIcon {
             user.interpret(file);
         } catch (Exception ex) {
             msgError(ex);
-        }
-    }
-
-    private void screen() {
-        if (send()) {
-            Storage.screen = new Screen();
-            if (!getActions.isRecOn()) {
-                msgInfo("Rec!");
-            }
-            getActions.setRecOn(true);
         }
     }
 
